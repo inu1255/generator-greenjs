@@ -1,0 +1,27 @@
+{
+  "name": "generator-greenjs",
+  "version": "1.0.0",
+  "description": "yo greenjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inu1255/generator-greenjs.git"
+  },
+  "keywords": [
+    "yeoman-generator"
+  ],
+  "author": "inu1255",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/inu1255/generator-greenjs/issues"
+  },
+  "homepage": "https://github.com/inu1255/generator-greenjs#readme",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "co": "^4.6.0",
+    "yeoman-generator": "^2.0.1"
+  }
+}
