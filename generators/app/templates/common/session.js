@@ -5,14 +5,14 @@
  */
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
-const config = require("./config.js");
+const config = require("./config");
 
 const sessionMiddleware = session({
     name: 'session',
     store: new RedisStore({
         prefix: config.appname + ":"
     }),
-    secret: '652927164',
+    secret: '26366',
     resave: true,
     saveUninitialized: false,
     cookie: {

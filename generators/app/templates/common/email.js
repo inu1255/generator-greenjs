@@ -10,12 +10,10 @@ const config = require("./config");
 
 const transporter = nodemailer.createTransport({
     pool: true,
-    host: 'smtp.aliyun.com',
-    port: 25,
-    secure: false,
+    service: "qq",
     auth: {
-        user: 'uniwise@aliyun.com',
-        pass: 'uniwise87'
+        user: 'admin@inu1255.cn',
+        pass: 'juqztcirowggcaaf'
     }
 });
 
@@ -29,9 +27,9 @@ transporter.verify(function(error, success) {
 
 exports.sendCode = function(to, code) {
     const message = {
-        from: `${config.appname}<uniwise@aliyun.com>`,
+        from: `${config.title}<admin@inu1255.cn>`,
         to,
-        subject: config.appname + '验证码',
+        subject: config.title + '验证码',
         html: `<p>您的验证码是[${code}]</p><p>your verification code is [${code}]</p>`
     };
     return new Promise(function(resolve, reject) {
@@ -47,7 +45,7 @@ exports.sendCode = function(to, code) {
 
 exports.sendHtml = function(to, title, html) {
     const message = {
-        from: `${config.appname}<uniwise@aliyun.com>`,
+        from: `${config.title}<admin@inu1255.cn>`,
         to,
         subject: title,
         html
