@@ -9,8 +9,7 @@ const router = express.Router();
 const fs = require("fs");
 const co = require("co");
 const path = require("path");
-const utils = require("../common/utils");
-const logger = require("../common/log").logger;
+const logger = require("../common/log").getLogger("dev");
 const config = require("../common/config");
 
 const apiDir = config.apiDir;
@@ -234,7 +233,11 @@ function sendOk(data) {
 }
 
 function apiDefine(filename) {
-    const data = utils.readJson(filename) || {};
+    let text = fs.readFileSync(filename);
+    let data = {};
+    try {
+        data = new Function("return " + text)();
+    } catch (error) {}
     if (!data.name) {
         logger.warn("api定义缺少name", filename);
         return;

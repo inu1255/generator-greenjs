@@ -2,13 +2,13 @@
   <div class="home-pg">
     <div class="header">
       <nav>
-        <router-link to="/">ss-box</router-link>
+        <router-link to="/">云签签</router-link>
         <div v-if="logined" class="right">
           <LoginLink to="/login">注销</LoginLink>
         </div>
         <div v-else class="right">
-          <Icon type="log-in"></Icon> <LoginLink>登录</LoginLink>
-          <Icon></Icon> <LoginLink to="/register">注册</LoginLink>
+          <LoginLink>登录</LoginLink>
+          <LoginLink to="/register">注册</LoginLink>
         </div>
       </nav>
       <div class="content-centor">

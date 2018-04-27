@@ -1,4 +1,4 @@
-import { Message } from 'iview';
+import { Message } from 'element-ui';
 import store from '../store';
 
 var match = (/https?:\/\/[^/]+/.exec(window.location.href))[0];

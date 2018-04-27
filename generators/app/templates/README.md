@@ -1,1 +1,1 @@
-### <%= name %>
+### auto server

@@ -1,15 +1,7 @@
 let map = {};
 
-let storage = function(key) {
-    return map[key] = map[key] || {};
+let storage = function(key, def) {
+    return map[key] = map[key] || def || {};
 };
-
-class Storage {
-    constructor(key) {
-        this.storage = storage(key);
-    }
-}
-
-storage.Storage = Storage;
-
+storage.map = map;
 module.exports = storage;

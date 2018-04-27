@@ -1,0 +1,62 @@
+[
+  {
+    "file": "index.html",
+    "hash": "ec9713f09d8976df290f3c5b42af4471"
+  },
+  {
+    "file": "static/$/animate.css",
+    "hash": "07f146141537e04ee282a965d8053198"
+  },
+  {
+    "file": "static/$/axios.js",
+    "hash": "1eb8e8e2284670dc214a3e70c25992b8"
+  },
+  {
+    "file": "static/$/index.css",
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  {
+    "file": "static/$/ionicons.min.css",
+    "hash": "bd3fafaa68daf378f94b4ebb2ed137ea"
+  },
+  {
+    "file": "static/$/ionicons.ttf",
+    "hash": "24712f6c47821394fba7942fbb52c3b2"
+  },
+  {
+    "file": "static/$/ionicons.woff",
+    "hash": "05acfdb568b3df49ad31355b19495d4a"
+  },
+  {
+    "file": "static/$/vonic.min.css",
+    "hash": "5e546128867394e9b4a83668d0fbd3d5"
+  },
+  {
+    "file": "static/$/vonic.min.js",
+    "hash": "15594006a3811c6feefb2783a501732b"
+  },
+  {
+    "file": "static/$/vue-router.js",
+    "hash": "ecd5c875c140901a3b206467e7b7277b"
+  },
+  {
+    "file": "static/$/vue.js",
+    "hash": "513e66db41f09d040545ae6e2427688f"
+  },
+  {
+    "file": "static/css/app.d4312537c6825982fcb326aaecdbab5d.css",
+    "hash": "b259180dc3f8ebd45ed6d542aad2db96"
+  },
+  {
+    "file": "static/js/app.592c9d5a98540a567888.js",
+    "hash": "135188f992d143ee8785c44bb01b3896"
+  },
+  {
+    "file": "static/js/manifest.3ad1d5771e9b13dbdad2.js",
+    "hash": "9a0394d936ba2f0db6f0f425fbedfc9b"
+  },
+  {
+    "file": "static/js/vendor.32bc345c951018b96068.js",
+    "hash": "82692f9c4afc0ccd8e2e8542c220c66a"
+  }
+]

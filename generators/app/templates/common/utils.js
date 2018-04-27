@@ -1,56 +1,5 @@
-const fs = require("fs");
-const logger = require("./log").logger;
 const net = require("net");
 const Duplex = require('stream').Duplex;
-
-exports.readJson = function(filePath) {
-    var s;
-    try {
-        s = fs.readFileSync(filePath, "utf8");
-    } catch (e) {
-        if (e.errno == -2) {
-            logger.log(filePath, "不存在");
-        } else {
-            logger.log(filePath, e);
-        }
-        return;
-    }
-    return new Function("return " + s)();
-};
-
-exports.writeJson = function(filePath, data, space) {
-    try {
-        fs.writeFileSync(filePath, JSON.stringify(data, null, space), "utf8");
-    } catch (e) {
-        logger.log(filePath, e);
-    }
-};
-
-exports.readJsonAsync = function(filePath) {
-    return new Promise(function(resolve, reject) {
-        fs.readFile(filePath, "utf8", function(e, s) {
-            if (e) {
-                if (e.errno == -2) {
-                    logger.log(filePath, "不存在");
-                } else {
-                    logger.log(filePath, e);
-                }
-                reject(e);
-            } else resolve(new Function("return " + s)());
-        });
-    });
-};
-
-exports.writeJsonAsync = function(filePath, data, space) {
-    return new Promise(function(resolve, reject) {
-        fs.writeFile(filePath, JSON.stringify(data, null, space), "utf8", function(err, data) {
-            if (err) {
-                logger.log(filePath, e);
-                reject(err);
-            } else resolve(data);
-        });
-    });
-};
 
 exports.cross = function(req, res, next) {
     const origin = req.headers["origin"];
@@ -67,7 +16,7 @@ exports.cross = function(req, res, next) {
  * @param {number} port 端口
  */
 exports.probe = function(port) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
         var server = net.createServer().listen(port);
 
         var calledOnce = false;
@@ -118,4 +67,118 @@ exports.bufferToStream = function(buffer) {
     stream.push(buffer);
     stream.push(null);
     return stream;
+};
+
+exports.sleep = function(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+/**
+ * 按顺序执行Promise
+ * @param {Array<(ret:Any,i:Number)=>Promise>} tasks 
+ * @param {Any} [init]
+ * @returns {Promise}
+ */
+exports.flow = function(tasks, init) {
+    return new Promise((resolve, reject) => {
+        var i = 0;
+        var ret = init;
+
+        function next(data) {
+            ret = data;
+            i++;
+            if (i < tasks.length)
+                tasks[i](ret, i).then(next, reject).catch(reject);
+            else
+                resolve(ret);
+        }
+        tasks[i](ret, i).then(next, reject).catch(reject);
+    });
+};
+
+/**
+ * 把v转换为mysql可以接收的参数，把对象转换成json字符串
+ * @param {any} v 值
+ * @returns {String}
+ */
+exports.val = function(v) {
+    if (v === undefined) v = null;
+    return (v && typeof v === "object") ? JSON.stringify(v) : v;
+};
+
+/**
+ * 如果args为undefined则返回 def||[] 
+ * 如果args是一个Array则返回自己
+ * 如果不是则返回[args]
+ * @param {any} args 
+ * @param {Array|undefined} def 
+ * @returns {Array}
+ */
+exports.arr = function(args, def) {
+    if (args instanceof Array) return args;
+    return args === undefined ? def || [] : [args];
+};
+
+/**
+ * @param {Array<Function>} middles 
+ * @param {Function} cb 
+ */
+exports.withMiddles = function(context, middles, cb) {
+    return function() {
+        let args = Array.from(arguments);
+        if (cb) middles = middles.concat([cb]);
+        let fn = middles.map(x => (next) => x.apply(context, args.concat(next))).reverse().reduce((a, b) => () => b(a));
+        return fn();
+    };
+};
+
+exports.promisify = function(fn) {
+    return function() {
+        let args = arguments;
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            fn.apply(that, Array.from(args).concat(function(err, data) {
+                if (err) reject(err);
+                else resolve(data);
+            }));
+        });
+    };
+};
+
+/**
+ * @param {String} cookie 
+ * @returns {Object}
+ */
+exports.parseResCookie = function(cookie) {
+    let cc = cookie.split(";");
+    let ss = cc[0].split("=");
+    let item = {};
+    item.name = ss[0];
+    item.value = ss.slice(1).join("=");
+    item.domain = arguments[2];
+    for (let row of cc.slice(1)) {
+        let ss = row.split("=");
+        let name = ss[0].trim();
+        if (name) {
+            item[name.toLowerCase()] = ss[1] ? ss[1].trim() : 1;
+        }
+    }
+    return item;
+};
+
+/**
+ * @param {String} cookie 
+ * @returns {Object}
+ */
+exports.parseReqCookie = function(cookie) {
+    if (!cookie) return {};
+    let cc = cookie.split(";");
+    let item = {};
+    for (let s of cc) {
+        let ss = s.split("=");
+        if (ss.length > 1) {
+            item[ss[0].trim()] = ss[1].trim();
+        }
+    }
+    return item;
 };

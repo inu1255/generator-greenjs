@@ -1,0 +1,91 @@
+html,
+body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+img {
+    max-width: 100%;
+}
+
+.m-img {
+    padding-bottom: 33%;
+    display: block;
+    position: relative;
+    max-width: 100%;
+    background-size: cover;
+    background-position: center center;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.m-time {
+    font-size: 12px;
+    padding-top: 4px;
+    border-top: 1px solid #f0f0f0;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.m-title {
+    color: #fff;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    font-weight: 500;
+    font-size: 16px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 100%;
+    text-align: center;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+#app {
+    small {
+        font-size: 12px;
+    }
+    height: 100vh;
+    .weui-tab {
+        >:first-child {
+            width: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 100;
+        }
+    }
+    .weui-tab__panel {
+        padding-top: 46px;
+        padding-bottom: 44px;
+    }
+    .bottom {
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+    }
+    .vux-header {
+        >.vux-header-left {
+            >svg {
+                fill: #fff;
+                position: relative;
+                top: -8px;
+                left: -3px;
+            }
+        }
+        >.vux-header-right {
+            >.weui-btn {
+                position: relative;
+                top: -4px;
+            }
+        }
+    }
+    .weui-cell {
+        svg {
+            position: relative;
+            top: 0.12em;
+        }
+    }
+}

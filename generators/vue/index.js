@@ -19,17 +19,17 @@ module.exports = class extends Base {
     }
     writing() {
         return Promise.all([
-            this.copyAll(".babelrc", "web/.babelrc", this.props),
-            this.copyAll(".editorconfig", "web/.editorconfig", this.props),
-            this.copyAll(".gitignore", "web/.gitignore", this.props),
-            this.copyAll(".postcssrc.js", "web/.postcssrc.js", this.props),
-            this.copyAll("README.md", "web/README.md", this.props),
-            this.copyAll("build", "web/build", this.props),
-            this.copyAll("config", "web/config", this.props),
-            this.copyAll("index.html", "web/index.html", this.props),
-            this.copyAll("package.json", "web/package.json", this.props),
-            this.copyAll("src", "web/src", this.props),
-            this.copyAll("static", "web/static", this.props),
+            this.copyAll(".babelrc", ".babelrc", this.props),
+            this.copyAll(".editorconfig", ".editorconfig", this.props),
+            this.copyAll(".gitignore", ".gitignore", this.props),
+            this.copyAll(".postcssrc.js", ".postcssrc.js", this.props),
+            this.copyAll("README.md", "README.md", this.props),
+            this.copyAll("build", "build", this.props),
+            this.copyAll("config", "config", this.props),
+            this.copyAll("index.html", "index.html", this.props),
+            this.copyAll("package.json", "package.json", this.props),
+            this.copyAll("src", "src", this.props),
+            this.copyAll("static", "static", this.props),
         ]);
     }
 };

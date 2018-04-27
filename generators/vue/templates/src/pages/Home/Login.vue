@@ -3,21 +3,19 @@
         <div class="header">
             <h6>回家咯~~~</h6>
         </div>
-        <Form ref="form" :model="body" :rules="rule">
-          <FormItem prop="title">
-              <Input type="text" v-model="body.title" placeholder="用户名/邮箱">
-                  <Icon type="ios-person-outline" slot="prepend"></Icon>
-              </Input>
-          </FormItem>
-          <FormItem prop="password">
-              <Input @on-enter="login('form')" type="password" v-model="body.password" placeholder="密码">
-                  <Icon type="ios-locked-outline" slot="prepend"></Icon>
-              </Input>
-          </FormItem>
-          <FormItem>
-              <Button class="login" type="primary" @click="login('form')">登录</Button>
-          </FormItem>
-        </Form>
+        <el-form ref="form" :model="body" :rules="rule" size="small">
+          <el-form-item prop="title">
+              <el-input type="text" v-model="body.title" prefix-icon="ion-ios-person-outline" placeholder="用户名/邮箱">
+              </el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+              <el-input @keypress.enter.native="login('form')" type="password" v-model="body.password" prefix-icon="ion-ios-locked-outline" placeholder="密码">
+              </el-input>
+          </el-form-item>
+          <el-form-item>
+              <el-button class="login" type="primary" @click="login('form')">登录</el-button>
+          </el-form-item>
+        </el-form>
     </div>
 </template>
 
@@ -40,6 +38,9 @@ export default {
         ]
       }
     };
+  },
+  created(){
+    this.$store.dispatch("logout")
   },
   methods: {
     login(name) {

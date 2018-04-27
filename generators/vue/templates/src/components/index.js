@@ -1,10 +1,8 @@
 import Vue from 'vue';
 import Markdown from './Markdown';
 import LoginLink from './LoginLink';
-import moment from 'moment';
 import { random } from '@/utils/utils';
-
-moment.locale("zh-CN");
+import HttpCard from './HttpCard';
 
 export default {
 	install(vue, options) {
@@ -51,5 +49,6 @@ export default {
 
 		Vue.component("Markdown", Markdown);
 		Vue.component("LoginLink", LoginLink);
+		Vue.component("HttpCard", HttpCard);
 	}
 };

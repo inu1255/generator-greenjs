@@ -1,7 +1,7 @@
 <template>
   <div class="main">
-    <h1>{{ name||"ss-box" }}</h1>
-    <h4>{{notice||"交流群: 635402015"}}</h4>
+    <h1>{{ name||"云签签" }}</h1>
+    <h4>{{notice||"交流群: 661969149"}}</h4>
     <router-link v-if="logined" class="btn home" to="/user/dashboard">控制面板</router-link>
     <router-link v-else class="btn home" to="/login">登录</router-link>
   </div>

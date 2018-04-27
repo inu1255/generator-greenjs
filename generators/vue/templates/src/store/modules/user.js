@@ -21,8 +21,8 @@ const actions = {
 		let user = await request("/user/register", body);
 		commit(types.USER_LOGIN, user);
 	},
-	async whoami({commit, state}) {
-		let user = await request("/user/whoami");
+	async whoami({commit, state}, force) {
+		let user = await request("/user/whoami?force="+(force?1:0));
 		commit(types.USER_LOGIN, user);
 	},
 	async logout({commit, state}) {

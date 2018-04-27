@@ -14,6 +14,9 @@ module.exports = class extends Generator {
         };
     }
     copyAll(from, to, data) {
+        if (arguments.length == 2) {
+            to = from;
+        }
         from = this.templatePath(from);
         to = this.destinationPath(to);
         return this._copyAll(from, to, data);

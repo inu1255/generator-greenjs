@@ -6,11 +6,8 @@ import Login from './pages/Home/Login';
 import Register from './pages/Home/Register';
 import Main from './pages/Home/Main';
 import User from './pages/User';
-import Dashboard from './pages/User/Dashboard';
-import UserList from './pages/User/UserList';
-import UserView from './pages/User/UserView';
-import AdminUser from './pages/Admin/User';
-import AdminNode from './pages/Admin/Node';
+import DashBoard from './pages/User/DashBoard';
+import History from './pages/User/History';
 
 const router = new VueRouter({
     routes: [{
@@ -30,46 +27,20 @@ const router = new VueRouter({
             name: 'Register',
             component: Register
         },]
-    }, {
-        path: '/user/view',
-        name: 'UserView',
-        component: UserView,
-        meta: {
-            guest: true
-        }
     },{
         path: '/user',
         name: 'User',
         component: User,
-        meta: {
-            requireAuth: true,
-        },
         children: [{
             path: '',
-            name: 'Dashboard',
-            alias: 'dashboard',
-            component: Dashboard
+            name: 'DashBoard',
+            component: DashBoard,
+            alias: 'dashboard'
         },{
-            path: 'list',
-            name: 'UserList',
-            component: UserList
-        },]
-    }, {
-        path: '/admin',
-        name: 'Admin',
-        component: User,
-        meta: {
-            requireAuth: true,
-            requireAdmin: true,
-        },
-        children: [{
-            path: 'node',
-            name: 'AdminNode',
-            component: AdminNode
-        },{
-            path: 'user',
-            name: 'AdminUser',
-            component: AdminUser
+            path: 'start',
+            name: 'History',
+            component: History,
+            alias: 'dashboard'
         },]
     }]
 });
