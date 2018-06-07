@@ -44,12 +44,13 @@ function paramClean(keys) {
 /**
  * 生成参数验证函数
  * @param {string} k 参数key
- * @param {string} lbl 参数名
- * @param {string} rem 参数注释
- * @param {bool} need 是否必填
- * @param {any} def 默认值
- * @param {Array} len 长度限制 [6,32] 6 [0,100]
- * @param {string} reg 正则表达式
+ * @param {object} param
+ * @param {string} param.lbl 参数名
+ * @param {string} param.rem 参数注释
+ * @param {boolean} param.need 是否必填
+ * @param {any} param.def 默认值
+ * @param {Array} param.len 长度限制 [6,32] 6 [0,100]
+ * @param {string} param.reg 正则表达式
  */
 function paramCheck(k, param) {
     const rem = param.rem;
@@ -121,7 +122,9 @@ function paramCheck(k, param) {
                                 return `${name}类型必须是json`;
                             }
                             break;
-                        default:
+                        case "number":
+                        case "object":
+                        case "string":
                             if (typeof value !== typ)
                                 return `${name}类型必须是${typ}`;
                     }
@@ -248,9 +251,12 @@ function apiDefine(filename) {
         return;
     }
     method = method.toLowerCase();
-    if (!router[method]) {
-        logger.warn("api定义不支持的method", method, filename);
-        return;
+    if (method == '*') method = 'all';
+    for (let m of method.split('|')) {
+        if (!router[m]) {
+            logger.warn("api定义不支持的method", m, filename);
+            return;
+        }
     }
     // 接口定义没问题
 
@@ -299,7 +305,7 @@ function routeApi(filename, handler) {
         logger.info("define", data.method.toUpperCase(), uri);
     }
     // 开始路由
-    router[data.method](uri, function(req, res) {
+    let fn = function(req, res) {
         res.err = data.sendErr;
         res.ok = sendOk;
         req.body = Object.assign({}, req.query, req.body);
@@ -348,7 +354,10 @@ function routeApi(filename, handler) {
                 }
             }
         }
-    });
+    };
+    for (let method of data.method.split("|")) {
+        router[method](uri, fn);
+    }
 }
 
 /**
@@ -374,7 +383,11 @@ function getHander(filename) {
         if (mod && typeof mod[key] === "function")
             handler = mod[key];
     } catch (error) {
-        logger.error(error);
+        if (error.code == 'MODULE_NOT_FOUND') {
+            logger.error(`找不到模块${modulePath}`);
+        } else {
+            logger.error(error);
+        }
     }
     return handler;
 }

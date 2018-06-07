@@ -1,22 +1,21 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import * as actions from './actions';
-import * as getters from './getters';
 import createLogger from './logger';
+import app from './modules/app';
 import user from './modules/user';
-import ssr from './modules/ssr';
+import postman from './modules/postman';
+let modules = {};
+
+for (let item of [app, user, postman]) {
+    modules[item.name] = item;
+}
 
 Vue.use(Vuex);
 
 const debug = process.env.NODE_ENV !== 'production';
 
 export default new Vuex.Store({
-	actions,
-	getters,
-	modules: {
-		user,
-		ssr,
-	},
-	strict: debug,
-	plugins: debug ? [createLogger()] : []
+    modules,
+    strict: debug,
+    plugins: debug ? [createLogger()] : []
 });

@@ -1,4 +1,3 @@
-const App = require("../apps/_app");
 const db = require("../common/db");
 
 exports.list = function(req, res) {

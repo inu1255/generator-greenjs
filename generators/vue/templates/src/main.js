@@ -1,18 +1,33 @@
+import './components/install';
+// import './components/vux';
+import './components/el';
+import './styles/base.less';
 import Vue from 'vue';
-import App from './pages/app.vue';
-import router from './router.js';
-import plugin from './components';
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
-import './pages/app.less';
+import FastClick from 'fastclick';
+import VueRouter from 'vue-router';
+import App from './App';
 import store from './store';
+import router from './router';
+import VueSocketio from 'vue-socket.io';
+import io from './common/socket';
+import config from './common/config';
 
-Vue.use(ElementUI);
-Vue.use(plugin);
+window.store = store;
+Vue.use(VueRouter);
+Vue.use(VueSocketio, io);
 
+FastClick.attach(document.body);
+
+Vue.config.productionTip = false;
+
+/* eslint-disable no-new */
 new Vue({
-    el: '#app',
-    store,
     router,
+    store,
+    sockets: {
+        connect: function() {
+            console.log('socket connected');
+        }
+    },
     render: h => h(App)
-});
+}).$mount('#app');
