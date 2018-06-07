@@ -40,25 +40,18 @@ function extendsConn(coMysql, logger) {
             if (x instanceof Array) args = x;
             else ignore = Boolean(x);
         }
-        let tasks = [];
+        let pms = Promise.resolve();
         if (autoTrans)
-            tasks.push(() => db.beginTransactionAsync());
-        tasks.push(() => new Promise((resolve, reject) => {
-            utils.flow(utils.arr(sqls).map(sql => () => db.SingleSQL(sql, args, ignore))).then(rows => {
-                if (autoTrans) {
-                    db.commitAsync().then(() => resolve(rows), reject);
-                } else {
-                    resolve(rows);
-                }
-            }).catch(err => {
-                if (autoTrans) {
-                    db.rollbackAsync().then(() => reject(err)).catch(() => reject(err));
-                } else {
-                    reject(err);
-                }
-            });
-        }));
-        return utils.flow(tasks);
+            pms = pms.then(() => db.beginTransactionAsync());
+        for (let sql of utils.arr(sqls)) {
+            pms = pms.then(() => db.SingleSQL(sql, args, ignore));
+        }
+        if (autoTrans)
+            pms = pms.then(
+                rows => db.commitAsync().then(() => rows),
+                err => db.rollbackAsync()
+            );
+        return pms;
     };
 }
 

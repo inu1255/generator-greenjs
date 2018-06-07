@@ -1,7 +1,7 @@
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
-const utils = require("./utils");
+const zlib = require('zlib');
 
 /**
  * @typedef {Object} Stats
@@ -226,10 +226,101 @@ exports.cp = function cp(srcPath, src2dst, overwrite) {
  */
 exports.mkdirs = function mkdirs(dir) {
     var dirs = dir.split(/[\/\\]/);
-    let tasks = [];
+    let pms = Promise.resolve();
     for (var i = 1; i <= dirs.length; i++) {
         let tmp = dirs.slice(0, i).join("/");
-        tasks.push(() => new Promise((resolve, reject) => fs.exists(tmp, ok => ok ? resolve() : fs.mkdir(tmp, err => err ? reject(err) : resolve()))));
+        pms = pms.then(() => new Promise((resolve, reject) => fs.exists(tmp, ok => ok ? resolve() : fs.mkdir(tmp, err => err ? reject(err) : resolve()))));
     }
-    return utils.flow(tasks);
+    return pms;
+};
+
+/**
+ * 遍历文件夹
+ * @param {string} dir 
+ * @param {(filename:string,stat:Stats)=>boolean} fn 
+ */
+exports.walk = function(dir, fn) {
+    return new Promise((resolve, reject) => {
+        fs.readdir(dir, function(err, filenames) {
+            if (err) reject(err);
+            else {
+                let task = Promise.resolve();
+                for (let filename of filenames) {
+                    filename = dir + "/" + filename;
+                    task = task.then(x => new Promise((resolve, reject) => {
+                        fs.stat(filename, function(err, stat) {
+                            if (stat.isDirectory()) {
+                                resolve(Promise.resolve(fn(filename, stat)).then(x => x || exports.walk(filename, fn)));
+                            } else {
+                                resolve(fn(filename, stat));
+                            }
+                        });
+                    }));
+                }
+                resolve(task);
+            }
+        });
+    });
+};
+
+/**
+ * 返回文件,并且支持 304 及 gz
+ * @param {string} filename 文件路径
+ * @param {string|number|Date} modtime 上次修改时间,if-modified-since
+ * @param {http.ServerResponse} res
+ * @param {number} [delay=7200] 单位(秒),gz延时,文件修改时间超过多久再生成gz,小于0时不生成gz
+ * @param {number} [maxAge=365] 单位(天),过期时间
+ */
+exports.sendFileOr304 = function(filename, modtime, res, delay, maxAge) {
+    delay = typeof delay === 'number' ? delay : 7200;
+    maxAge = typeof maxAge === 'number' ? maxAge : 365;
+    maxAge = maxAge * 86400e3;
+    if (modtime instanceof Date) modtime = modtime.getTime();
+    else try {
+        modtime = new Date(modtime || 0).getTime();
+    } catch (e) {
+        modtime = 0;
+    }
+    return Promise.all([
+        exports.stat(filename).then(x => Math.floor(x.mtime.getTime() / 1000) * 1e3, () => Promise.reject(404)),
+        exports.stat(filename + ".gz").then(x => Math.floor(x.mtime.getTime() / 1000) * 1e3, () => 0)
+    ]).then((ts) => {
+        // 304
+        if (modtime >= ts[0]) {
+            // 不存在gz || (gz修改时间<json修改时间 && 当前时间-json修改时间>delay
+            if (delay > 0 && ts[1] < ts[0] && new Date().getTime() - ts[0] > delay) {
+                fs.createReadStream(filename).pipe(zlib.createGzip()).pipe(fs.createWriteStream(filename + ".gz"));
+            }
+            res.writeHead(304);
+            res.end('Not Modified');
+            return 304;
+        }
+        // gz 没有过期
+        if (ts[1] >= ts[0]) {
+            res.removeHeader('Pragma');
+            res.writeHead(200, {
+                'last-modified': new Date(ts[0]).toUTCString(),
+                'cache-control': 'max-age=' + maxAge,
+                'expires': new Date(maxAge + new Date()).toUTCString(),
+            });
+            res.setHeader('content-encoding', 'gzip');
+            fs.createReadStream(filename + ".gz").pipe(res);
+            return filename + ".gz";
+        }
+        if (delay > 0 && ts[1] < ts[0] && new Date().getTime() - ts[0] > delay) {
+            fs.createReadStream(filename).pipe(zlib.createGzip()).pipe(fs.createWriteStream(filename + ".gz"));
+        }
+        res.removeHeader('Pragma');
+        res.writeHead(200, {
+            'last-modified': new Date(ts[0]).toUTCString(),
+            'cache-control': 'max-age=' + maxAge,
+            'expires': new Date(maxAge + new Date()).toUTCString(),
+        });
+        fs.createReadStream(filename).pipe(res);
+        return 200;
+    }, code => {
+        res.writeHead(404);
+        res.end('Not Found');
+        return 404;
+    });
 };

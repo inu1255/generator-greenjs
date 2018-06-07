@@ -1,5 +1,6 @@
 const net = require("net");
 const Duplex = require('stream').Duplex;
+const crypto = require('crypto');
 
 exports.cross = function(req, res, next) {
     const origin = req.headers["origin"];
@@ -111,7 +112,7 @@ exports.val = function(v) {
  * 如果args是一个Array则返回自己
  * 如果不是则返回[args]
  * @param {any} args 
- * @param {Array|undefined} def 
+ * @param {Array|undefined} def 默认值
  * @returns {Array}
  */
 exports.arr = function(args, def) {
@@ -181,4 +182,48 @@ exports.parseReqCookie = function(cookie) {
         }
     }
     return item;
+};
+
+/**
+ * @param {Object} data 
+ * @param {string[]} keys 
+ */
+exports.clearKeys = function(data, keys) {
+    data = Object.assign({}, data);
+    for (let key of keys) {
+        delete data[key];
+    }
+    return data;
+};
+
+/**
+ * 签名数据,防止篡改
+ * @param {string} sec 密码
+ * @param {object} body 签名对象
+ * @returns {string} base64 string
+ */
+exports.signToken = function(sec, body) {
+    let str = JSON.stringify(body);
+    var md5sum = crypto.createHash('md5');
+    md5sum.update(str + sec);
+    body.sign = md5sum.digest('hex');
+    return new Buffer(JSON.stringify(body)).toString("base64");
+};
+
+/**
+ * 校验签名并返回数据,校验失败返回undefined
+ * @param {string} sec 密码
+ * @param {string} token base64 string
+ */
+exports.checkSign = function(sec, token) {
+    try {
+        let body = JSON.parse(new Buffer(token, "base64"));
+        let sign = body.sign;
+        delete body.sign;
+        let str = JSON.stringify(body);
+        var md5sum = crypto.createHash('md5');
+        md5sum.update(str + sec);
+        if (sign == md5sum.digest('hex'))
+            return body;
+    } catch (error) {}
 };

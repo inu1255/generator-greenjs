@@ -87,6 +87,19 @@ class Raw {
     args() {
         return this._args;
     }
+    /**
+     * @param {Raw} sql 
+	 * @returns {string}
+     */
+    str() {
+        let i = 0;
+        let args = this.args();
+        return this.toString().replace(/\?/g, function() {
+            let s = args[i++];
+            if (typeof s === "string") return `'${s.replace(/'/g, /\\'/)}'`;
+            return s;
+        });
+    }
     push(args) {
         for (let arg of utils.arr(args))
             this._args.push(arg);
@@ -96,6 +109,7 @@ class Raw {
         let keys = [];
         for (let k in data) {
             let v = data[k];
+            if (v === undefined) continue;
             if (v instanceof Raw) {
                 keys.push(k + "=(" + v.toString() + ")");
                 this.push(v._args);
@@ -116,6 +130,7 @@ class Raw {
         if (!keys || !keys.length) keys = Object.keys(keys);
         for (let k in data) {
             let v = data[k];
+            if (v === undefined) continue;
             keys.push(k);
             if (v instanceof Raw) {
                 values.push(v.toString());
@@ -130,7 +145,12 @@ class Raw {
     wrapInsert(data) {
         data = utils.arr(data);
         if (data.length > 0) {
-            let keys = Object.keys(data[0]);
+            let keys = [];
+            for (let k in data[0]) {
+                let v = data[0][k];
+                if (v === undefined) continue;
+                keys.push(k);
+            }
             this._sql = `(${keys.join(",")}) values${this.warpValues(data[0],keys)}`;
             for (let item of data.slice(1)) {
                 this._sql += `,${this.warpValues(item,keys)}`;
@@ -387,13 +407,7 @@ class InsertOrUpdate extends Sql {
         return new InsertSql(this._table, this._data).engine(this._e);
     }
     toUpdate() {
-        let data = {};
-        let where = this._where.toString();
-        for (let k in this._data) {
-            if (where.indexOf(`${k}=?`) < 0)
-                data[k] = this._data[k];
-        }
-        return new UpdateSql(this._table, data).engine(this._e).where(this._where);
+        return new UpdateSql(this._table, this._data).engine(this._e).where(this._where);
     }
     pms() {
         if (this._where.isEmpty())
